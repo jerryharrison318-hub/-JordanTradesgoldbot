@@ -1,1 +1,1 @@
-python-telegram-bot[ext]--upgrade
+python-telegram-bot[ext]==22.8
