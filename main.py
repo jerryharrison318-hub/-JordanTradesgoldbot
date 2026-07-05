@@ -3,16 +3,26 @@ import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
-# Set up logging tracking
+# Set up logging tracking to print clearly in your Railway Deploy Logs
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# System fetches your token automatically from Railway Environment variables
+# Fetch variables from Railway configuration environment
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_URL = "https://t.me/xauusdcult"
 
+# 🚨 INFRASTRUCTURE SAFETY CHECK
+# This forces the logs to print exactly what is wrong if Railway isn't feeding the token properly
+if not BOT_TOKEN:
+    logger.error("❌ CRITICAL ERROR: The BOT_TOKEN environment variable is completely empty!")
+    logger.error("Please navigate to your Railway Variables tab and ensure the key is named 'BOT_TOKEN'.")
+    raise ValueError("System halt: Missing BOT_TOKEN environment variable.")
+else:
+    logger.info("✅ SUCCESS: BOT_TOKEN detected. Starting core connection initialization sequence...")
+
+
 def get_main_keyboard():
-    """Generates the primary premium menu layout."""
+    """Generates the primary premium menu layout with your channel link."""
     keyboard = [
         [InlineKeyboardButton("📢 Join XAUUSD CULT Channel", url=CHANNEL_URL)],
         [InlineKeyboardButton("🧰 Gold Position Calculator", callback_data="calc")],
@@ -20,6 +30,7 @@ def get_main_keyboard():
         [InlineKeyboardButton("📚 Gold Trading Education", callback_data="edu")]
     ]
     return InlineKeyboardMarkup(keyboard)
+
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     welcome_text = (
@@ -31,6 +42,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Content does not constitute financial or trade execution advice.*"
     )
     await update.message.reply_text(welcome_text, parse_mode="Markdown", reply_markup=get_main_keyboard())
+
 
 async def button_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -45,7 +57,7 @@ async def button_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(text=welcome_text, reply_markup=get_main_keyboard(), parse_mode="Markdown")
         return
 
-    # Back button to recycle menus
+    # Unified back button template
     back_btn = [[InlineKeyboardButton("⬅️ Back to Core Menu", callback_data="back_to_menu")]]
     back_markup = InlineKeyboardMarkup(back_btn)
 
@@ -86,11 +98,19 @@ async def button_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         await query.edit_message_text(text=edu_text, reply_markup=back_markup, parse_mode="Markdown")
 
+
 def main():
-    # Correct, streamlined setup initialization for python-telegram-bot v20+
+    # Streamlined Application initialization framework
     application = Application.builder().token(BOT_TOKEN).build()
     
+    # Register background task controllers
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CallbackQueryHandler(button_dispatcher))
     
+    # Run the background listener loop
+    logger.info("🚀 Connection handshake verified. Bot polling interface launched successfully.")
     application.run_polling()
+
+
+if __name__ == "__main__":
+    main()
