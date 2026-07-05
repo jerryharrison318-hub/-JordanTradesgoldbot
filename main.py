@@ -3,6 +3,7 @@ import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
+# Logging setup
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -10,7 +11,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_URL = "https://t.me/xauusdcult"
 
 if not BOT_TOKEN:
-    logger.error("❌ CRITICAL ERROR: BOT_TOKEN is empty!")
+    logger.error("❌ CRITICAL ERROR: BOT_TOKEN environment variable is missing!")
     raise ValueError("Missing BOT_TOKEN variable.")
 
 def get_main_keyboard():
@@ -86,7 +87,7 @@ async def button_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(text=edu_text, reply_markup=back_markup, parse_mode="Markdown")
 
 def main():
-    # Clean, modern build pattern with zero hardcoded bot parameters
+    # Direct, safe, parameters-free application compilation
     application = Application.builder().token(BOT_TOKEN).build()
     
     application.add_handler(CommandHandler("start", start_command))
