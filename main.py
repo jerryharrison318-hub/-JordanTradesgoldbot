@@ -1,26 +1,19 @@
 import os
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
-# Set up logging tracking to print clearly in your Railway Deploy Logs
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Fetch variables from Railway configuration environment
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_URL = "https://t.me/xauusdcult"
 
-# 🚨 INFRASTRUCTURE SAFETY CHECK
 if not BOT_TOKEN:
-    logger.error("❌ CRITICAL ERROR: The BOT_TOKEN environment variable is completely empty!")
-    raise ValueError("System halt: Missing BOT_TOKEN environment variable.")
-else:
-    logger.info("✅ SUCCESS: BOT_TOKEN detected. Starting core connection initialization sequence...")
-
+    logger.error("❌ CRITICAL ERROR: BOT_TOKEN is empty!")
+    raise ValueError("Missing BOT_TOKEN variable.")
 
 def get_main_keyboard():
-    """Generates the primary premium menu layout with your channel link."""
     keyboard = [
         [InlineKeyboardButton("📢 Join XAUUSD CULT Channel", url=CHANNEL_URL)],
         [InlineKeyboardButton("🧰 Gold Position Calculator", callback_data="calc")],
@@ -28,7 +21,6 @@ def get_main_keyboard():
         [InlineKeyboardButton("📚 Gold Trading Education", callback_data="edu")]
     ]
     return InlineKeyboardMarkup(keyboard)
-
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     welcome_text = (
@@ -41,12 +33,10 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     await update.message.reply_text(welcome_text, parse_mode="Markdown", reply_markup=get_main_keyboard())
 
-
 async def button_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
-    # Back to Main Menu handler
     if query.data == "back_to_menu":
         welcome_text = (
             "🏆 **JordanTrades Gold Analytics Menu**\n\n"
@@ -55,7 +45,6 @@ async def button_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(text=welcome_text, reply_markup=get_main_keyboard(), parse_mode="Markdown")
         return
 
-    # Unified back button template
     back_btn = [[InlineKeyboardButton("⬅️ Back to Core Menu", callback_data="back_to_menu")]]
     back_markup = InlineKeyboardMarkup(back_btn)
 
@@ -90,25 +79,21 @@ async def button_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "📚 **Gold Trading Structural Concepts**\n"
             "--- \n"
             "Master the specific variables that influence structural gold pricing changes:\n\n"
-            "1️⃣ **US Dollar Inverse Scaling:** Gold price trends generally rise when the US Dollar index drops, and vice versa.\n"
-            "2️⃣ **Risk-Off Liquidity Inflows:** Geopolitical escalations or global economic uncertainty historically drive investors into Gold as a safe haven.\n"
-            "3️⃣ **Session Windows:** Maximum market momentum occurs during the London/New York session overlap."
+            "1️⃣ **US Dollar Inverse Scaling:** Gold price trends generally rise when the US Dollar index drops.\n"
+            "2️⃣ **Risk-Off Liquidity Inflows:** Global economic uncertainty historically drives investors into Gold.\n"
+            "3️⃣ **Session Windows:** Maximum market momentum occurs during the London/New York overlap."
         )
         await query.edit_message_text(text=edu_text, reply_markup=back_markup, parse_mode="Markdown")
 
-
 def main():
-    # 🌟 FIXED: Using explicit ApplicationBuilder instantiation to avoid the parameter crash from image_fef566.png
-    application = ApplicationBuilder().token(BOT_TOKEN).build()
+    # Clean, modern build pattern with zero hardcoded bot parameters
+    application = Application.builder().token(BOT_TOKEN).build()
     
-    # Register background task controllers
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CallbackQueryHandler(button_dispatcher))
     
-    # Run the background listener loop
-    logger.info("🚀 Connection handshake verified. Bot polling interface launched successfully.")
+    logger.info("🚀 Pushing polling pipeline live...")
     application.run_polling()
-
 
 if __name__ == "__main__":
     main()
