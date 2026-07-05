@@ -1,7 +1,7 @@
 import os
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
 
 # Set up logging tracking to print clearly in your Railway Deploy Logs
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
@@ -12,10 +12,8 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_URL = "https://t.me/xauusdcult"
 
 # 🚨 INFRASTRUCTURE SAFETY CHECK
-# This forces the logs to print exactly what is wrong if Railway isn't feeding the token properly
 if not BOT_TOKEN:
     logger.error("❌ CRITICAL ERROR: The BOT_TOKEN environment variable is completely empty!")
-    logger.error("Please navigate to your Railway Variables tab and ensure the key is named 'BOT_TOKEN'.")
     raise ValueError("System halt: Missing BOT_TOKEN environment variable.")
 else:
     logger.info("✅ SUCCESS: BOT_TOKEN detected. Starting core connection initialization sequence...")
@@ -100,8 +98,8 @@ async def button_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def main():
-    # Streamlined Application initialization framework
-    application = Application.builder().token(BOT_TOKEN).build()
+    # 🌟 FIXED: Using explicit ApplicationBuilder instantiation to avoid the parameter crash from image_fef566.png
+    application = ApplicationBuilder().token(BOT_TOKEN).build()
     
     # Register background task controllers
     application.add_handler(CommandHandler("start", start_command))
