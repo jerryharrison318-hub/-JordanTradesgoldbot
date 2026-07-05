@@ -87,10 +87,10 @@ async def button_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(text=edu_text, reply_markup=back_markup, parse_mode="Markdown")
 
 def main():
+    # Correct, streamlined setup initialization for python-telegram-bot v20+
     application = Application.builder().token(BOT_TOKEN).build()
+    
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CallbackQueryHandler(button_dispatcher))
+    
     application.run_polling()
-
-if __name__ == "__main__":
-    main()
